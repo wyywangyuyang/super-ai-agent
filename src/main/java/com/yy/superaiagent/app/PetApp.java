@@ -1,5 +1,6 @@
 package com.yy.superaiagent.app;
 
+import com.yy.superaiagent.advisor.MyLoggerAdvisor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -43,7 +44,9 @@ public class PetApp {
         chatClient = ChatClient.builder(dashScopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(
-                        MessageChatMemoryAdvisor.builder(chatMemory).build()
+                        MessageChatMemoryAdvisor.builder(chatMemory).build(),
+                        // 自定义日志拦截器，可按需开启
+                        new MyLoggerAdvisor()
                 )
                 .build();
     }
