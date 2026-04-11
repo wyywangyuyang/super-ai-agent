@@ -32,4 +32,13 @@ class PetAppTest {
         Assertions.assertNotNull(answer);
 
     }
+
+    @Test
+    void doChatWithReport() {
+        String chatId = UUID.randomUUID().toString();
+        String message = "你好，我是程序员菜狗,我想让我的猫咪更爱我，但我不知道该怎么做";
+        PetApp.PetReport loveReport = petApp.doChatWithReport(message, chatId);
+        Assertions.assertNotNull(loveReport);
+
+    }
 }

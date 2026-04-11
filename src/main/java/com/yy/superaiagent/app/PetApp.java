@@ -12,6 +12,8 @@ import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * 宠物咨询客户端
  *
@@ -47,9 +49,9 @@ public class PetApp {
                 .defaultAdvisors(
                         MessageChatMemoryAdvisor.builder(chatMemory).build(),
                         // 自定义日志 Advisor，可按需开启
-                        new MyLoggerAdvisor(),
+                        new MyLoggerAdvisor()
                         // 自定义推理增强 Advisor，可按需开启
-                        new ReReadingAdvisor()
+//                        new ReReadingAdvisor()
                 )
                 .build();
     }
@@ -69,5 +71,25 @@ public class PetApp {
         String content = chatResponse.getResult().getOutput().getText();
         log.info("content：{}", content);
         return content;
+    }
+
+    record PetReport(String title, List<String> suggestions) {
+    }
+
+    /**
+     * AI宠物咨询报告功能（实战结构化输出）
+     * @param message 用户输入
+     * @param chatId 会话ID
+     * @return 聊天结果
+     */
+    public PetReport doChatWithReport(String message, String chatId){
+        PetReport petReport = chatClient.prompt()
+                .system(SYSTEM_PROMPT + "每次对话后都要生成宠物咨询报告，标题为{用户名}的宠物咨询报告，内容为建议列表")
+                .user(message)
+                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
+                .call()
+                .entity(PetReport.class);
+        log.info("petReport：{}", petReport);
+        return petReport;
     }
 }
