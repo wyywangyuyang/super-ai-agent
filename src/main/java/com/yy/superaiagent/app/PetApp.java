@@ -2,6 +2,7 @@ package com.yy.superaiagent.app;
 
 import com.yy.superaiagent.advisor.MyLoggerAdvisor;
 import com.yy.superaiagent.advisor.ReReadingAdvisor;
+import com.yy.superaiagent.chatmemory.FileBasedChatMemory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -38,12 +39,15 @@ public class PetApp {
      * @param dashScopeChatModel 阿里大模型
      */
     public PetApp(ChatModel dashScopeChatModel) {
+        //初始化基于文件的对话记忆
+        String fileDir = System.getProperty("user.dir") + "/tmp/chat-memory";
+        FileBasedChatMemory chatMemory = new FileBasedChatMemory(fileDir);
         // 初始化基于内存的对话记忆
-        MessageWindowChatMemory chatMemory = MessageWindowChatMemory.builder()
-                .chatMemoryRepository(new InMemoryChatMemoryRepository())
-                // 设置最大存储消息数
-                .maxMessages(20)
-                .build();
+//        MessageWindowChatMemory chatMemory = MessageWindowChatMemory.builder()
+//                .chatMemoryRepository(new InMemoryChatMemoryRepository())
+//                // 设置最大存储消息数
+//                .maxMessages(20)
+//                .build();
         chatClient = ChatClient.builder(dashScopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(
