@@ -8,12 +8,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 
@@ -102,7 +104,9 @@ public class PetApp {
     }
 
     @Resource
-    private VectorStore vectorStore;
+    private VectorStore petAppVectorStore;
+    @Resource
+    private Advisor petAppRagCloudAdvisor;
 
     /**
      * 与 RAG 知识库进行对话
@@ -117,7 +121,9 @@ public class PetApp {
                 //开启日志便于观察
                 .advisors(new SimpleLoggerAdvisor())
                 // 应用 RAG 知识库问答
-                .advisors(QuestionAnswerAdvisor.builder(vectorStore).build())
+//                .advisors(QuestionAnswerAdvisor.builder(petAppVectorStore).build())
+                // 应用 RAG 检索增强服务（基于云知识库服务）
+                .advisors(petAppRagCloudAdvisor)
                 .call()
                 .chatResponse();
 
