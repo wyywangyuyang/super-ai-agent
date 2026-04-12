@@ -39,6 +39,13 @@ class PetAppTest {
         String message = "你好，我是程序员菜狗,我想让我的猫咪更爱我，但我不知道该怎么做";
         PetApp.PetReport loveReport = petApp.doChatWithReport(message, chatId);
         Assertions.assertNotNull(loveReport);
+    }
 
+    @Test
+    void doChatWithRag() {
+        String chatId = UUID.randomUUID().toString();
+        String message = "刚接回家的幼宠（猫 / 狗）需要做哪些准备和注意事项？";
+        PetApp.PetReport loveReport = petApp.doChatWithReport(message, chatId);
+        Assertions.assertNotNull(loveReport);
     }
 }

@@ -3,14 +3,18 @@ package com.yy.superaiagent.app;
 import com.yy.superaiagent.advisor.MyLoggerAdvisor;
 import com.yy.superaiagent.advisor.ReReadingAdvisor;
 import com.yy.superaiagent.chatmemory.FileBasedChatMemory;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -40,14 +44,14 @@ public class PetApp {
      */
     public PetApp(ChatModel dashScopeChatModel) {
         //初始化基于文件的对话记忆
-        String fileDir = System.getProperty("user.dir") + "/tmp/chat-memory";
-        FileBasedChatMemory chatMemory = new FileBasedChatMemory(fileDir);
+//        String fileDir = System.getProperty("user.dir") + "/tmp/chat-memory";
+//        FileBasedChatMemory chatMemory = new FileBasedChatMemory(fileDir);
         // 初始化基于内存的对话记忆
-//        MessageWindowChatMemory chatMemory = MessageWindowChatMemory.builder()
-//                .chatMemoryRepository(new InMemoryChatMemoryRepository())
-//                // 设置最大存储消息数
-//                .maxMessages(20)
-//                .build();
+        MessageWindowChatMemory chatMemory = MessageWindowChatMemory.builder()
+                .chatMemoryRepository(new InMemoryChatMemoryRepository())
+                // 设置最大存储消息数
+                .maxMessages(20)
+                .build();
         chatClient = ChatClient.builder(dashScopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(
@@ -95,5 +99,30 @@ public class PetApp {
                 .entity(PetReport.class);
         log.info("petReport：{}", petReport);
         return petReport;
+    }
+
+    @Resource
+    private VectorStore vectorStore;
+
+    /**
+     * 与 RAG 知识库进行对话
+     * @param message 用户输入
+     * @param chatId 会话ID
+     * @return 聊天结果
+     */
+    public String doChatWithRag(String message, String chatId) {
+        ChatResponse chatResponse = chatClient.prompt()
+                .user(message)
+                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
+                //开启日志便于观察
+                .advisors(new SimpleLoggerAdvisor())
+                // 应用 RAG 知识库问答
+                .advisors(QuestionAnswerAdvisor.builder(vectorStore).build())
+                .call()
+                .chatResponse();
+
+        String content = chatResponse.getResult().getOutput().getText();
+        log.info("content：{}", content);
+        return content;
     }
 }
