@@ -107,6 +107,8 @@ public class PetApp {
     private VectorStore petAppVectorStore;
     @Resource
     private Advisor petAppRagCloudAdvisor;
+    @Resource
+    private VectorStore pgVectorVectorStore;
 
     /**
      * 与 RAG 知识库进行对话
@@ -121,9 +123,11 @@ public class PetApp {
                 //开启日志便于观察
                 .advisors(new SimpleLoggerAdvisor())
                 // 应用 RAG 知识库问答
-//                .advisors(QuestionAnswerAdvisor.builder(petAppVectorStore).build())
+                .advisors(QuestionAnswerAdvisor.builder(petAppVectorStore).build())
                 // 应用 RAG 检索增强服务（基于云知识库服务）
-                .advisors(petAppRagCloudAdvisor)
+//                .advisors(petAppRagCloudAdvisor)
+                // 应用 RAG 检索增强服务（基于 PgVector 向量存储）
+//                .advisors(QuestionAnswerAdvisor.builder(pgVectorVectorStore).build())
                 .call()
                 .chatResponse();
 

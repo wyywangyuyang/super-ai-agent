@@ -3,12 +3,15 @@ package com.yy.superaiagent.app;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.ai.vectorstore.pgvector.autoconfigure.PgVectorStoreAutoConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@EnableAutoConfiguration(exclude = {PgVectorStoreAutoConfiguration.class})
 @SpringBootTest
 class PetAppTest {
 
