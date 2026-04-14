@@ -3,6 +3,7 @@ package com.yy.superaiagent.app;
 import com.yy.superaiagent.advisor.MyLoggerAdvisor;
 import com.yy.superaiagent.advisor.ReReadingAdvisor;
 import com.yy.superaiagent.chatmemory.FileBasedChatMemory;
+import com.yy.superaiagent.rag.PetAppRagCustomAdvisorFactory;
 import com.yy.superaiagent.rag.QueryRewriter;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -135,6 +136,8 @@ public class PetApp {
 //                .advisors(petAppRagCloudAdvisor)
                 // 应用 RAG 检索增强服务（基于 PgVector 向量存储）
 //                .advisors(QuestionAnswerAdvisor.builder(pgVectorVectorStore).build())
+                // 应用自定义的 RAG 检索增强服务（文档增强器 + 上下文增强器）
+//                .advisors(PetAppRagCustomAdvisorFactory.createPetAppRagCustomAdvisor(petAppVectorStore, "猫"))
                 .call()
                 .chatResponse();
 
