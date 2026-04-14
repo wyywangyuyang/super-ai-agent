@@ -20,12 +20,22 @@ public class PetAppVectorStoreConfig {
 
     @Resource
     private PetAppDocumentLoader petAppDocumentLoader;
+    @Resource
+    private MyTokenTextSplitter myTokenTextSplitter;
+    @Resource
+    private MyKeywordEnricher myKeywordEnricher;
 
     @Bean
     VectorStore petAppVectorStore(EmbeddingModel dashScopeEmbeddingModel) {
         SimpleVectorStore simpleVectorStore = SimpleVectorStore.builder(dashScopeEmbeddingModel).build();
+        // 加载文档
         List<Document> documentList = petAppDocumentLoader.loadMarkdowns();
-        simpleVectorStore.add(documentList);
+        // 自主切分文档
+//        List<Document> splitDocuments = myTokenTextSplitter.splitWithBuilder(documentList);
+        // 自动补充关键词元信息
+        List<Document> enricherDocuments = myKeywordEnricher.enrichDocuments(documentList);
+        simpleVectorStore.add(enricherDocuments);
+
         return simpleVectorStore;
     }
 }

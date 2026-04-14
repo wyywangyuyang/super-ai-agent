@@ -39,11 +39,14 @@ public class PetAppDocumentLoader {
             Resource[] resources = resourcePatternResolver.getResources("classpath*:document/*.md");
             for (Resource resource : resources) {
                 String filename = resource.getFilename();
+                // 提取文档第 1 和第 2 个字作为标签
+                String status = filename.substring(filename.length() - 22, filename.length() - 20);
                 MarkdownDocumentReaderConfig config = MarkdownDocumentReaderConfig.builder()
                         .withHorizontalRuleCreateDocument(true)
                         .withIncludeCodeBlock(false)
                         .withIncludeBlockquote(false)
                         .withAdditionalMetadata("filename", filename)
+                        .withAdditionalMetadata("status", status)
                         .build();
 
                 MarkdownDocumentReader reader = new MarkdownDocumentReader(resource, config);
