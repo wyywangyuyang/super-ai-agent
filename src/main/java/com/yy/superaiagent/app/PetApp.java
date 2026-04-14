@@ -3,6 +3,7 @@ package com.yy.superaiagent.app;
 import com.yy.superaiagent.advisor.MyLoggerAdvisor;
 import com.yy.superaiagent.advisor.ReReadingAdvisor;
 import com.yy.superaiagent.chatmemory.FileBasedChatMemory;
+import com.yy.superaiagent.rag.QueryRewriter;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -109,6 +110,8 @@ public class PetApp {
     private Advisor petAppRagCloudAdvisor;
     @Resource
     private VectorStore pgVectorVectorStore;
+    @Resource
+    private QueryRewriter queryRewriter;
 
     /**
      * 与 RAG 知识库进行对话
@@ -117,8 +120,12 @@ public class PetApp {
      * @return 聊天结果
      */
     public String doChatWithRag(String message, String chatId) {
+        //查询重写
+        String rewriterMessage = queryRewriter.doQueryRewriter(message);
+
         ChatResponse chatResponse = chatClient.prompt()
-                .user(message)
+                // 使用改写后的查询
+                .user(rewriterMessage)
                 .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
                 //开启日志便于观察
                 .advisors(new SimpleLoggerAdvisor())
