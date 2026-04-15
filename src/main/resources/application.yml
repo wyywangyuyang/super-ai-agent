@@ -11,7 +11,7 @@ spring:
         dimensions: 1536
         distance-type: COSINE_DISTANCE
         max-document-batch-size: 10000
-    # MCP 配置
+    # MCP 客户端配置
     mcp:
       client:
         stdio:
