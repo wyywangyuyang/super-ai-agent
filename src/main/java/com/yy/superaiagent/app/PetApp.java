@@ -18,6 +18,7 @@ import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 
@@ -141,6 +142,30 @@ public class PetApp {
                 .call()
                 .chatResponse();
 
+        String content = chatResponse.getResult().getOutput().getText();
+        log.info("content：{}", content);
+        return content;
+    }
+
+
+    @Resource
+    private ToolCallback[] allTools;
+
+    /**
+     * AI宠物咨询报告功能（支持工具调用）
+     * @param message 用户输入
+     * @param chatId 会话ID
+     * @return 聊天结果
+     */
+    public String doChatWithTools(String message, String chatId){
+        ChatResponse chatResponse = chatClient.prompt()
+                .user(message)
+                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
+                //开启日志便于观察
+                .advisors(new SimpleLoggerAdvisor())
+                .tools(allTools)
+                .call()
+                .chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
         log.info("content：{}", content);
         return content;

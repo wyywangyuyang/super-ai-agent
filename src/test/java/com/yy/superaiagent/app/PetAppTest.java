@@ -51,4 +51,26 @@ class PetAppTest {
         PetApp.PetReport loveReport = petApp.doChatWithReport(message, chatId);
         Assertions.assertNotNull(loveReport);
     }
+
+    @Test
+    void doChatWithTools() {
+        // 测试联网搜索工具
+        testMessage("周末想带我家金毛去公园玩，推荐几个适合狗狗活动的上海宠物友好场所？");
+        // 测试网页抓取工具
+        testMessage("最近我家猫咪总是乱抓沙发，看看其他铲屎官是怎么解决这个问题的？看看宠物网站（https://www.chongso.com/）能不能解决问题。");
+        // 测试资源下载工具
+        testMessage("直接下载一张适合做手机壁纸的可爱猫咪图片为文件");
+        // 测试终端操作工具
+        testMessage("执行 Python3 脚本来分析宠物的健康数据并生成报告");
+        // 测试文件操作工具
+        testMessage("保存我的宠物档案为文件，包含品种、年龄和疫苗接种记录");
+        // 测试PDF生成工具
+        testMessage("生成一份'新手养猫指南'PDF，包含日常护理、饮食建议和常见疾病预防");
+    }
+
+    private  void testMessage(String message) {
+        String chatId = UUID.randomUUID().toString();
+        String answer = petApp.doChatWithTools(message, chatId);
+        Assertions.assertNotNull(answer);
+    }
 }
