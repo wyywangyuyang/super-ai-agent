@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: image-search-mcp-server
+  # 默认激活配置
+  profiles:
+    # 如果启用的是sse模式，则需要手动启动该项目，并修改客户端中的配置文件
+    active: stdio
+server:tupian
+  port: 8127

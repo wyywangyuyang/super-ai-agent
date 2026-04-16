@@ -14,8 +14,14 @@ spring:
     # MCP 客户端配置
     mcp:
       client:
+        # stdio模式
         stdio:
           servers-configuration: classpath:mcp-servers.json
+        # sse模式，不要和stdio模式同时启用，需要手动启动mcp服务端，并注释stdio，打开sse
+#        sse:
+#          connections:
+#            server1:
+#              url: http://localhost:8127
 
 server:
   port: 8123
