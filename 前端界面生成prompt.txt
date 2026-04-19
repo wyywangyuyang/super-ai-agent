@@ -19,7 +19,7 @@
 
 接口地址前缀：http://localhost:8123/api
 
-## SpringBoot 后端接口代码
+## SpringBoot 后端接口代码，均为流式输出
 
 @RestController
 @RequestMapping("/ai")
