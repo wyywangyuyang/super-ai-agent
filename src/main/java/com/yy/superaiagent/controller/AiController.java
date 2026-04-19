@@ -36,7 +36,7 @@ public class AiController {
      * @param chatId 会话ID
      * @return 聊天结果
      */
-    @GetMapping("/love_app/chat/sync")
+    @GetMapping("/pet_app/chat/sync")
     public BaseResponse<String> doChatWithPetAppSync(String message, String chatId) {
         String result = petApp.doChatWithAll(message, chatId);
         return ResultUtils.success(result);
@@ -49,7 +49,7 @@ public class AiController {
      * @param chatId 会话ID
      * @return 聊天结果
      */
-    @GetMapping(value = "/love_app/chat/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/pet_app/chat/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public BaseResponse<Flux<String>> doChatWithPetAppSse(String message, String chatId) {
         Flux<String> result = petApp.doChatWithAllByStream(message, chatId);
         return ResultUtils.success(result);
@@ -62,7 +62,7 @@ public class AiController {
      * @param chatId 会话ID
      * @return 聊天结果
      */
-    @GetMapping(value = "/love_app/chat/server_sent_event")
+    @GetMapping(value = "/pet_app/chat/server_sent_event")
     public BaseResponse<Flux<ServerSentEvent<String>>> doChatWithPetAppServerSentEvent(String message, String chatId) {
         Flux<ServerSentEvent<String>> result = petApp.doChatWithAllByStream(message, chatId)
                 .map(chunk -> ServerSentEvent.<String>builder().data(chunk).build());
@@ -76,7 +76,7 @@ public class AiController {
      * @param chatId 会话ID
      * @return 聊天结果
      */
-    @GetMapping(value = "/love_app/chat/sse_emitter")
+    @GetMapping(value = "/pet_app/chat/sse_emitter")
     public BaseResponse<SseEmitter> doChatWithLoveAppServerSseEmitter(String message, String chatId) {
         //创建一个超长时间较长的 SseEmitter
         SseEmitter sseEmitter = new SseEmitter(180000L);
