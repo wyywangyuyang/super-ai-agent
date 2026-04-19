@@ -64,7 +64,7 @@ public class AiController {
      */
     @GetMapping(value = "/love_app/chat/server_sent_event")
     public BaseResponse<Flux<ServerSentEvent<String>>> doChatWithPetAppServerSentEvent(String message, String chatId) {
-        Flux<ServerSentEvent<String>> result = petApp.doChatByStream(message, chatId)
+        Flux<ServerSentEvent<String>> result = petApp.doChatWithAllByStream(message, chatId)
                 .map(chunk -> ServerSentEvent.<String>builder().data(chunk).build());
         return ResultUtils.success(result);
     }
