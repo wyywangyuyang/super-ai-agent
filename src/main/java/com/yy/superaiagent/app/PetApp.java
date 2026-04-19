@@ -22,6 +22,7 @@ import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -88,6 +89,22 @@ public class PetApp {
     }
 
     record PetReport(String title, List<String> suggestions) {
+    }
+
+    /**
+     * AI 基础对话（支持多轮对话记忆，SSE 流式传输）
+     *
+     * @param message
+     * @param chatId
+     * @return
+     */
+    public Flux<String> doChatByStream(String message, String chatId) {
+        return chatClient
+                .prompt()
+                .user(message)
+                .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
+                .stream()
+                .content();
     }
 
     /**
@@ -194,5 +211,63 @@ public class PetApp {
         String content = chatResponse.getResult().getOutput().getText();
         log.info("content：{}", content);
         return content;
+    }
+
+
+    /**
+     * AI宠物咨询报告功能（汇总上述服务）
+     * @param message 用户输入
+     * @param chatId 会话ID
+     * @return 聊天结果
+     */
+    public String doChatWithAll(String message, String chatId){
+        //查询重写
+        String rewriterMessage = queryRewriter.doQueryRewriter(message);
+
+        ChatResponse chatResponse = chatClient.prompt()
+                // 使用改写后的查询
+                .user(rewriterMessage)
+                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
+                // 开启日志便于观察
+                .advisors(new SimpleLoggerAdvisor())
+                // 应用 RAG 知识库问答
+                .advisors(QuestionAnswerAdvisor.builder(petAppVectorStore).build())
+                // 支持工具调用
+                .toolCallbacks(allTools)
+                // 应用 MCP 服务
+                .toolCallbacks(toolCallbackProvider)
+                .call()
+                .chatResponse();
+        String content = chatResponse.getResult().getOutput().getText();
+        log.info("content：{}", content);
+        return content;
+    }
+
+
+    /**
+     * AI宠物咨询报告功能（汇总上述服务）（支持流式输出）
+     * @param message 用户输入
+     * @param chatId 会话ID
+     * @return 聊天结果
+     */
+    public Flux<String> doChatWithAllByStream(String message, String chatId){
+        //查询重写
+        String rewriterMessage = queryRewriter.doQueryRewriter(message);
+
+        return chatClient.prompt()
+                // 使用改写后的查询
+                .user(rewriterMessage)
+                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, chatId))
+                // 开启日志便于观察
+                .advisors(new SimpleLoggerAdvisor())
+                // 应用 RAG 知识库问答
+                .advisors(QuestionAnswerAdvisor.builder(petAppVectorStore).build())
+                // 支持工具调用
+                .toolCallbacks(allTools)
+                // 应用 MCP 服务
+                .toolCallbacks(toolCallbackProvider)
+                // 支持流式输出
+                .stream()
+                .content();
     }
 }

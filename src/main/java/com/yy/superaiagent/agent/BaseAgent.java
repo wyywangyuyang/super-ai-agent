@@ -177,6 +177,7 @@ public abstract class BaseAgent {
             this.cleanup();
             log.info("SSE connection completed");
         });
+
         return sseEmitter;
     }
 
