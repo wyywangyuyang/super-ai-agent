@@ -34,4 +34,3 @@ public class AiController {
         return ResultUtils.success(result);
     }
 }
-优化上述提示词，使其可以让AI生成更加炫酷的前端界面
