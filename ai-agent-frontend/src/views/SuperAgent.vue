@@ -183,7 +183,9 @@ startNewChat()
               <div class="assistant-wrap">
                 <span class="assistant-tag">AI</span>
                 <div class="bubble agent-bubble">
-                  <TypewriterText :text="item.content ?? item.text ?? ''" />
+                  <span class="bubble-text">
+                    <TypewriterText :text="item.content ?? item.text ?? ''" />
+                  </span>
                 </div>
               </div>
             </template>
@@ -333,6 +335,8 @@ startNewChat()
 }
 
 .bubble {
+  display: inline-flex;
+  width: auto;
   max-width: min(78%, 920px);
   white-space: pre-wrap;
   word-break: break-word;
@@ -350,6 +354,11 @@ startNewChat()
   background: rgba(255, 255, 255, 0.92);
   color: #1f2937;
   border: 1px solid rgba(15, 23, 42, 0.08);
+  min-width: 0;
+}
+
+.bubble-text {
+  min-width: 0;
 }
 
 .multiline-input {
@@ -365,6 +374,7 @@ startNewChat()
   align-items: flex-start;
   gap: 10px;
   max-width: min(88%, 980px);
+  min-width: 0;
 }
 
 .user-wrap {
