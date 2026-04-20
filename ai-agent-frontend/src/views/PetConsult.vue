@@ -57,7 +57,14 @@ function startNewChat() {
   isStreaming.value = false
   errorText.value = ''
   inputText.value = ''
-  messages.value = []
+  messages.value = [
+    {
+      id: `assistant-welcome-${Date.now()}`,
+      role: 'assistant',
+      content: '你好呀～我是专属 AI 宠物咨询顾问，关于宠物喂养、健康护理、行为习惯等问题，都可以随时问我哦😊',
+      time: Date.now(),
+    },
+  ]
   chatId.value = createChatId()
 
   conversations.value = conversations.value.map((item) => {
@@ -160,7 +167,7 @@ function sendMessage() {
 
     <div class="chat-main">
       <button class="mobile-sidebar-btn" @click="sidebarOpen = !sidebarOpen">会话</button>
-      <TechPanel title="AI 宠物咨询聊天室">
+      <TechPanel title="AI 宠物咨询聊天室" class="chat-panel">
         <div class="chat-meta">
           <span>聊天室 ID: {{ chatId }}</span>
           <span class="status">状态: {{ statusText }}</span>
@@ -172,21 +179,30 @@ function sendMessage() {
             :key="item.id"
             :class="['bubble-row', item.role === 'user' ? 'user-row' : 'ai-row']"
           >
-            <div v-if="item.role === 'assistant'" class="pet-avatar">PET</div>
-            <div :class="['bubble', item.role === 'user' ? 'user-bubble' : 'ai-bubble']">
-              <TypewriterText v-if="item.role === 'assistant'" :text="item.content" :speed="14" />
-              <span v-else>{{ item.content }}</span>
-            </div>
+            <template v-if="item.role === 'assistant'">
+              <div class="pet-avatar">PET</div>
+              <div class="bubble ai-bubble">
+                <TypewriterText :text="item.content" :speed="14" />
+              </div>
+            </template>
+            <template v-else>
+              <div class="user-wrap">
+                <div class="bubble user-bubble">
+                  <span>{{ item.content }}</span>
+                </div>
+                <div class="me-avatar">ME</div>
+              </div>
+            </template>
           </article>
         </div>
 
         <div class="input-bar">
-          <input
+          <textarea
             v-model="inputText"
-            type="text"
-            class="chat-input"
+            class="chat-input multiline-input"
             placeholder="和宠物 AI 说点什么..."
-            @keydown.enter="sendMessage"
+            rows="1"
+            @keydown.enter.exact.prevent="sendMessage"
           />
           <button class="send-btn glow-btn" :disabled="isStreaming" @click="sendMessage">发送</button>
         </div>
@@ -201,6 +217,9 @@ function sendMessage() {
   grid-template-columns: 260px 1fr;
   gap: 0;
   min-height: 100vh;
+  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
 }
 
 .chat-sidebar {
@@ -209,6 +228,7 @@ function sendMessage() {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  min-height: 0;
 }
 
 .new-chat-btn,
@@ -228,6 +248,8 @@ function sendMessage() {
   flex-direction: column;
   gap: 8px;
   overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .conversation-item.active {
@@ -253,6 +275,31 @@ function sendMessage() {
 .chat-main {
   min-width: 0;
   padding: 12px;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-panel :deep(.tech-panel) {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-panel :deep(.tech-panel-body) {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .mobile-sidebar-btn {
@@ -260,11 +307,25 @@ function sendMessage() {
   margin-bottom: 8px;
 }
 
+.input-bar {
+  flex-shrink: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.multiline-input {
+  width: 100%;
+  min-height: 44px;
+  max-height: 220px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
 .messages {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  max-height: 62vh;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 8px 6px 12px;
 }
@@ -304,6 +365,13 @@ function sendMessage() {
   border: 1px solid rgba(15, 23, 42, 0.08);
 }
 
+.user-wrap {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: min(88%, 980px);
+}
+
 .pet-avatar {
   width: 32px;
   height: 32px;
@@ -318,25 +386,31 @@ function sendMessage() {
   margin-top: 4px;
 }
 
+.me-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4b7cf0, #4f8cff);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
 @media (max-width: 900px) {
   .chat-layout {
     grid-template-columns: 1fr;
+    height: 100vh;
+    height: 100dvh;
   }
 
-  .chat-sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 240px;
-    transform: translateX(-100%);
-    transition: transform 0.2s ease;
-    z-index: 20;
-    background: inherit;
-  }
-
-  .chat-sidebar.open {
-    transform: translateX(0);
+  .chat-main {
+    height: 100vh;
+    height: 100dvh;
   }
 
   .mobile-sidebar-btn {

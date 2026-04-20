@@ -52,7 +52,13 @@ function startNewChat() {
   isStreaming.value = false
   errorText.value = ''
   inputText.value = ''
-  messages.value = []
+  messages.value = [
+    {
+      id: `assistant-welcome-${Date.now()}`,
+      role: 'assistant',
+      content: '你好～我是 AI 超级智能体，很高兴为您服务，请问有什么可以帮您？',
+    },
+  ]
 
   conversations.value = conversations.value.map((item) => {
     if (item.title === '当前对话') return { ...item, title: '历史对话' }
@@ -161,7 +167,7 @@ startNewChat()
 
     <div class="chat-main">
       <button class="mobile-sidebar-btn" @click="sidebarOpen = !sidebarOpen">会话</button>
-      <TechPanel title="AI 超级智能体">
+      <TechPanel title="AI 超级智能体" class="chat-panel">
         <div class="chat-meta">
           <span>模式: AI超级智能体</span>
           <span class="status">状态: {{ statusText }}</span>
@@ -173,19 +179,32 @@ startNewChat()
             :key="item.id"
             :class="['bubble-row', item.role === 'user' ? 'user-row' : 'ai-row']"
           >
-            <div :class="['bubble', item.role === 'user' ? 'user-bubble' : 'agent-bubble']">
-              <span>{{ item.content ?? item.text }}</span>
-            </div>
+            <template v-if="item.role === 'assistant'">
+              <div class="assistant-wrap">
+                <span class="assistant-tag">AI</span>
+                <div class="bubble agent-bubble">
+                  <TypewriterText :text="item.content ?? item.text ?? ''" />
+                </div>
+              </div>
+            </template>
+            <template v-else>
+              <div class="user-wrap">
+                <div class="bubble user-bubble">
+                  <span>{{ item.content ?? item.text }}</span>
+                </div>
+                <span class="user-tag">ME</span>
+              </div>
+            </template>
           </article>
         </div>
 
         <div class="input-bar">
-          <input
+          <textarea
             v-model="inputText"
-            type="text"
-            class="chat-input"
+            class="chat-input multiline-input"
             placeholder="向超级智能体输入任务..."
-            @keydown.enter="sendMessage"
+            rows="1"
+            @keydown.enter.exact.prevent="sendMessage"
           />
           <button class="send-btn glow-btn" :disabled="isStreaming" @click="sendMessage">执行</button>
         </div>
@@ -200,6 +219,9 @@ startNewChat()
   grid-template-columns: 260px 1fr;
   gap: 0;
   min-height: 100vh;
+  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
 }
 
 .chat-sidebar {
@@ -208,6 +230,7 @@ startNewChat()
   display: flex;
   flex-direction: column;
   gap: 10px;
+  min-height: 0;
 }
 
 .new-chat-btn,
@@ -227,6 +250,8 @@ startNewChat()
   flex-direction: column;
   gap: 8px;
   overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .conversation-item.active {
@@ -252,20 +277,46 @@ startNewChat()
 .chat-main {
   min-width: 0;
   padding: 12px;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-.mobile-sidebar-btn {
-  display: none;
-  margin-bottom: 8px;
+.chat-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-panel :deep(.tech-panel) {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-panel :deep(.tech-panel-body) {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .messages.tech-messages {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  max-height: 62vh;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 8px 6px 12px;
+}
+
+.input-bar {
+  flex-shrink: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .bubble-row {
@@ -301,9 +352,68 @@ startNewChat()
   border: 1px solid rgba(15, 23, 42, 0.08);
 }
 
+.multiline-input {
+  width: 100%;
+  min-height: 44px;
+  max-height: 220px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.assistant-wrap {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: min(88%, 980px);
+}
+
+.user-wrap {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: min(88%, 980px);
+}
+
+.assistant-tag {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  flex: 0 0 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #18b97a, #1fcf8f);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.user-tag {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  flex: 0 0 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #4b7cf0, #4f8cff);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
 @media (max-width: 900px) {
   .chat-layout {
     grid-template-columns: 1fr;
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  .chat-main {
+    height: 100vh;
+    height: 100dvh;
   }
 
   .chat-sidebar {
