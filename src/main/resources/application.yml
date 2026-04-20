@@ -2,7 +2,7 @@ spring:
   application:
     name: super-ai-agent
   profiles:
-    active: local
+    active: prod
   # PgVectorStore 配置
   ai:
     vectorstore:
