@@ -50,9 +50,8 @@ public class AiController {
      * @return 聊天结果
      */
     @GetMapping(value = "/pet_app/chat/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public BaseResponse<Flux<String>> doChatWithPetAppSse(String message, String chatId) {
-        Flux<String> result = petApp.doChatWithAllByStream(message, chatId);
-        return ResultUtils.success(result);
+    public Flux<String> doChatWithPetAppSse(String message, String chatId) {
+        return petApp.doChatWithAllByStream(message, chatId);
     }
 
     /**
@@ -62,11 +61,10 @@ public class AiController {
      * @param chatId 会话ID
      * @return 聊天结果
      */
-    @GetMapping(value = "/pet_app/chat/server_sent_event")
-    public BaseResponse<Flux<ServerSentEvent<String>>> doChatWithPetAppServerSentEvent(String message, String chatId) {
-        Flux<ServerSentEvent<String>> result = petApp.doChatWithAllByStream(message, chatId)
+    @GetMapping(value = "/pet_app/chat/server_sent_event", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ServerSentEvent<String>> doChatWithPetAppServerSentEvent(String message, String chatId) {
+        return petApp.doChatWithAllByStream(message, chatId)
                 .map(chunk -> ServerSentEvent.<String>builder().data(chunk).build());
-        return ResultUtils.success(result);
     }
 
     /**
@@ -76,8 +74,8 @@ public class AiController {
      * @param chatId 会话ID
      * @return 聊天结果
      */
-    @GetMapping(value = "/pet_app/chat/sse_emitter")
-    public BaseResponse<SseEmitter> doChatWithLoveAppServerSseEmitter(String message, String chatId) {
+    @GetMapping(value = "/pet_app/chat/sse_emitter", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter doChatWithLoveAppServerSseEmitter(String message, String chatId) {
         //创建一个超长时间较长的 SseEmitter
         SseEmitter sseEmitter = new SseEmitter(180000L);
         // 获取 Flux 响应式数据流并且直接通过订阅推送给 SseEmitter
@@ -90,7 +88,7 @@ public class AiController {
                     }
                 }, sseEmitter::completeWithError, sseEmitter::complete);
         //返回
-        return ResultUtils.success(sseEmitter);
+        return sseEmitter;
     }
 
     /**
@@ -99,10 +97,9 @@ public class AiController {
      * @param message 用户输入
      * @return 聊天结果
      */
-    @GetMapping("/manus/chat")
-    public BaseResponse<SseEmitter> doChatWithManus(String message) {
+    @GetMapping(value = "/manus/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter doChatWithManus(String message) {
         Manus manus = new Manus(allTools, dashScopeChatModel);
-        SseEmitter result = manus.runStream(message);
-        return ResultUtils.success(result);
+        return manus.runStream(message);
     }
 }
