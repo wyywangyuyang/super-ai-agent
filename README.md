@@ -13,12 +13,20 @@ Super AI Agent 是一个全栈 AI 平台，结合了现代化的 Vue 3 前端和
 ## 🌟 三大核心技术亮点
 
 ### 1. RAG (检索增强生成)
-- 包含文档读取、分块处理和向量存储模块。
-- 结合大语言模型与本地私库知识，打通企业/个人私有数据的智能问答，并提供精准的知识回溯源。
+在本项目中，RAG 模块为 AI 智能体提供了强大的外部知识库检索支撑，消除了大模型“凭空捏造”的幻觉，提升了垂直领域内问题解答的精准度。
+- **多种向量库支持**：系统同时支持用于快速开发调试的内存向量库（`SimpleVectorStore`）以及基于生产环境的 PostgreSQL 扩展库（`PgVectorStore`）。
+- **多种文档加载机制**：内置自定义的 `DocumentLoader`，支持针对 Markdown、PDF 等本地专业指南文档（如《新手养猫指南》）的自动读取分块与词元化（Token Text Splitter）。
+- **Advisor （顾问机制）增强**：通过 Spring AI 的 `RetrievalAugmentationAdvisor`（以及自定义的 `PetAppRagCustomAdvisorFactory`），在发起问答请求时透明地进行向量检索。支持丰富的过滤机制（FilterExpression），且可以针对检索不到特定内容配置 `QueryAugmenter` 预设回复策略。支持打通阿里云百炼知识库云端检索，以及本地检索多模式切换。
 
 ### 2. Tool Calling (工具调用)
-- 破除大模“只会说不会做”的局限。
-- 智能体可直接利用 Tool Calling 机制自主调用 Java 后端定义好的 Function（如本地文件处理、规划服务等），大幅提升了 AI 完成复杂任务的能力。
+本项目通过 Tool Calling（大模型工具调用能力）使 AI 智能体拥有了具体的“手”和“脚”，从而脱离虚拟回复，可直接影响物理世界或操作系统。本项目核心集成并开放了以下底层函数工具（Functions）：
+- **`FileOperationTool`（文件操作工具）**：允许 AI 智能体在指定工作目录下读取与写入本地文件内容。
+- **`WebSearchTool`（多擎网页搜索工具）**：当 AI 缺乏最新本地知识时，允许其主动发起互联网搜索引擎检索并获取相关网页数据。
+- **`WebScrapingTool`（网络爬虫工具）**：允许 AI 基于获取到的搜索结果链接，进一步爬取指定网页下的正文详情内容。
+- **`TerminalOperationTool`（终端指令工具）**：在受限及安全可控环境下，允许 AI 执行底层终端或 Shell 命令行操作。
+- **`ResourceDownloadTool`（资源下载工具）**：允许智能体将网络寻址到的多媒体资源（如图片、文档素材）自动下载保存到本地 `tmp/download` 目录下。
+- **`PDFGenerationTool`（PDF 生成工具）**：智能体可以将制定的行程或者复杂长文报告，直接打包排版并输出为 PDF 文件给用户。
+- **`TerminateTool`（任务终止工具）**：允许 AI 判断当所有步骤任务圆满完成后，主动发起任务终结信号。
 
 ### 3. MCP (Model Context Protocol 模型上下文协议)
 - **上下文与外部能力拓展**：基于标准化的模型上下文协议（MCP），本项目独立实现并接入了图像搜索等外部聚合数据服务。
